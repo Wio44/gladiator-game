@@ -11,6 +11,7 @@ target/
 *.iws
 *.iml
 *.ipr
+saved-games/
 
 ### Eclipse ###
 .apt_generated

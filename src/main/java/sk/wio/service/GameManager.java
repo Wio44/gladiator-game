@@ -3,11 +3,12 @@ package sk.wio.service;
 import sk.wio.ability.HeroAbilityManager;
 import sk.wio.constant.Constants;
 import sk.wio.domain.Hero;
+import sk.wio.domain.LoadedGame;
 import sk.wio.utility.InputUtils;
 import sk.wio.utility.PrintUtils;
 
 public class GameManager {
-    private final Hero hero;
+    private Hero hero;
     private final HeroAbilityManager heroAbilityManager;
     private int currentLevel;
     private final FileService fileService;
@@ -20,7 +21,7 @@ public class GameManager {
     }
 
     public void startGame() {
-       this.initGame();
+        this.initGame();
 
         while (this.currentLevel <= 5) {
             System.out.println("0. Fight " + "Level " + this.currentLevel);
@@ -31,7 +32,7 @@ public class GameManager {
             final int choice = InputUtils.readInt();
             switch (choice) {
                 case 0 -> {
-                   // TODO fight
+                    // TODO fight
                     this.currentLevel++;
                 }
                 case 1 -> this.upgradeAbilities();
@@ -59,6 +60,22 @@ public class GameManager {
 
     private void initGame() {
         System.out.println("Welcome to the Gladiator game!");
+        System.out.println("0. Start new game");
+        System.out.println("1. Load game");
+        final int choice = InputUtils.readInt();
+        switch (choice) {
+            case 0 -> System.out.println("Let's go then");
+            case 1 -> {
+                final LoadedGame loadedGame = fileService.loadGame();
+                if (loadedGame != null) {
+                    this.hero = loadedGame.getHero();
+                    this.currentLevel = loadedGame.getLevel();
+                    return;
+                }
+            }
+            default -> System.out.println("Invalid choice");
+        }
+
         System.out.println("Enter your name: ");
         final String name = InputUtils.readString();
         this.hero.setName(name);
@@ -80,7 +97,8 @@ public class GameManager {
 
         final int choice = InputUtils.readInt();
         switch (choice) {
-            case 0 -> {}
+            case 0 -> {
+            }
             case 1 -> this.heroAbilityManager.spendHeroAvailablePoints();
             case 2 -> this.heroAbilityManager.removeHeroAvailablePoints();
             case 3 -> System.out.println("Invalid choice");
