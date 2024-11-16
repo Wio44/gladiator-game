@@ -1,4 +1,7 @@
-package sk.wio;
+package sk.wio.domain;
+
+import sk.wio.ability.Ability;
+import sk.wio.constant.Constant;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +14,11 @@ public class Hero {
     public Hero(String name) {
         this.name = name;
         this.abilities = getInitialAbilities();
-        this.availablePoints = 7;
+        this.availablePoints = Constant.INITIAL_ABILITY_POINTS;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -28,7 +35,7 @@ public class Hero {
 
     public void updateAbility(Ability ability, int delta) {
         if (ability.equals(Ability.HEALTH)) {
-            abilities.put(ability, this.abilities.get(ability) + delta * 5);
+            abilities.put(ability, this.abilities.get(ability) + delta * Constant.HEALTH_OF_ONE_POINT);
         } else {
             abilities.put(ability, this.abilities.get(ability) + delta);
         }

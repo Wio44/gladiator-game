@@ -1,4 +1,4 @@
-package sk.wio;
+package sk.wio.utility;
 
 import java.util.Scanner;
 
