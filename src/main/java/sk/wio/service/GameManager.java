@@ -2,10 +2,14 @@ package sk.wio.service;
 
 import sk.wio.ability.HeroAbilityManager;
 import sk.wio.constant.Constants;
+import sk.wio.domain.Enemy;
 import sk.wio.domain.Hero;
 import sk.wio.domain.LoadedGame;
+import sk.wio.utility.EnemyGenerator;
 import sk.wio.utility.InputUtils;
 import sk.wio.utility.PrintUtils;
+
+import java.util.Map;
 
 public class GameManager {
     private Hero hero;
@@ -13,18 +17,25 @@ public class GameManager {
     private int currentLevel;
     private final FileService fileService;
 
-    public GameManager() {
+    private final BattleService battleService;
+
+    private final Map<Integer, Enemy> enemiesByLevel;
+
+    public GameManager(Map<Integer, Enemy> enemiesByLevel) {
         this.hero = new Hero("");
         this.heroAbilityManager = new HeroAbilityManager(hero);
         this.currentLevel = Constants.INITIAL_LEVEL;
+        this.battleService = new BattleService();
         this.fileService = new FileService();
+        this.enemiesByLevel = EnemyGenerator.createEnemies();
     }
 
     public void startGame() {
         this.initGame();
 
-        while (this.currentLevel <= 5) {
-            System.out.println("0. Fight " + "Level " + this.currentLevel);
+        while (this.currentLevel <= this.enemiesByLevel.size()) {
+            final Enemy enemy = this.enemiesByLevel.get(this.currentLevel);
+            System.out.println("0. Fight " + enemy.getName() + " (Level " + this.currentLevel + ")");
             System.out.println("1. Upgrade abilities (" + hero.getAvailablePoints() + " points to spend)");
             System.out.println("2. Save game");
             System.out.println("3. Exit game");
@@ -32,7 +43,12 @@ public class GameManager {
             final int choice = InputUtils.readInt();
             switch (choice) {
                 case 0 -> {
-                    // TODO fight
+                    if (this.battleService.isHeroReadyToBattle(this.hero, enemy)) {
+                        // TODO battle
+                        this.currentLevel++;
+                    }
+
+                    // battle
                     this.currentLevel++;
                 }
                 case 1 -> this.upgradeAbilities();
