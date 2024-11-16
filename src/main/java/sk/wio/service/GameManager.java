@@ -10,11 +10,13 @@ public class GameManager {
     private final Hero hero;
     private final HeroAbilityManager heroAbilityManager;
     private int currentLevel;
+    private final FileService fileService;
 
     public GameManager() {
         this.hero = new Hero("");
         this.heroAbilityManager = new HeroAbilityManager(hero);
         this.currentLevel = Constants.INITIAL_LEVEL;
+        this.fileService = new FileService();
     }
 
     public void startGame() {
@@ -34,7 +36,7 @@ public class GameManager {
                 }
                 case 1 -> this.upgradeAbilities();
                 case 2 -> {
-                    // TODO save game
+                    this.fileService.saveGame(this.hero, this.currentLevel);
                 }
                 case 3 -> {
                     System.out.println("Are you sure?");
@@ -73,7 +75,7 @@ public class GameManager {
         PrintUtils.printAbilities(this.hero);
 
         System.out.println("0. Go back");
-        System.out.println("1. Spend points(" + this.hero.getAvailablePoints() + " points to spend)");
+        System.out.println("1. Spend points(" + this.hero.getAvailablePoints() + " points left)");
         System.out.println("2. Remove points");
 
         final int choice = InputUtils.readInt();
