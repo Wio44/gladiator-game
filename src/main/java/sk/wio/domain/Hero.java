@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Hero extends GameCharacter {
-    private String name;
-    private Map<Ability, Integer> abilities;
     private int availablePoints;
 
     public Hero(String name) {
         super(name, new HashMap<>());
-        this.abilities = getInitialAbilities();
+        super.abilities = getInitialAbilities();
         this.availablePoints = Constants.INITIAL_ABILITY_POINTS;
     }
 
@@ -32,14 +30,18 @@ public class Hero extends GameCharacter {
 
     public void updateAbility(Ability ability, int delta) {
         if (ability.equals(Ability.HEALTH)) {
-            abilities.put(ability, this.abilities.get(ability) + delta * Constants.HEALTH_OF_ONE_POINT);
+            super.abilities.put(ability, abilities.get(ability) + delta * Constants.HEALTH_OF_ONE_POINT);
         } else {
-            abilities.put(ability, this.abilities.get(ability) + delta);
+            super.abilities.put(ability, abilities.get(ability) + delta);
         }
     }
 
     public void updateAvailablePoints(int delta) {
         this.availablePoints += delta;
+    }
+
+    public void setAbility(Ability ability, int value) {
+        abilities.put(ability, value);
     }
 
     private Map<Ability, Integer> getInitialAbilities() {

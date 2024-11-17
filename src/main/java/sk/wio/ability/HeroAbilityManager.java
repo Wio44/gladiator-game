@@ -14,15 +14,16 @@ public class HeroAbilityManager {
     }
 
     public void spendHeroAvailablePoints() {
-        int availablePoints = hero.getAvailablePoints();
+        int availablePoints = this.hero.getAvailablePoints();
 
         if (availablePoints == 0) {
-            System.out.println("You have no points to spend");
+            System.out.println("You have no points to spend!");
             return;
         }
 
         while (availablePoints > 0) {
-            System.out.println("You have " + availablePoints + " point to spend. Choose wisely.");
+            System.out.println("You have " + availablePoints + " point to spend.");
+            System.out.println("Choose ability to upgrade:");
             System.out.println("0. Explain abilities");
             System.out.println("1. Attack");
             System.out.println("2. Defence");
@@ -35,7 +36,9 @@ public class HeroAbilityManager {
             Ability ability;
             switch (abilityIndex) {
                 case 0 -> {
-                    PrintUtils.printAbilities(hero);
+                    for (Ability a : Ability.values()) {
+                        System.out.println(a + ":" + a.getDescription());
+                    }
                     System.out.println();
                     continue;
                 }
@@ -46,24 +49,22 @@ public class HeroAbilityManager {
                 case 5 -> ability = Ability.LUCK;
                 case 6 -> ability = Ability.HEALTH;
                 default -> {
-                    System.out.println("Invalid index");
+                    System.out.println("Invalid ability index!");
                     continue;
                 }
             }
 
-            hero.updateAbility(ability, 1);
+            this.hero.updateAbility(ability, 1);
             System.out.println("You have upgraded " + ability);
-
-            hero.updateAvailablePoints(-1);
+            this.hero.updateAvailablePoints(-1);
             if (availablePoints > 1) {
-                PrintUtils.printAbilities(hero);
+                PrintUtils.printAbilities(this.hero);
             }
             availablePoints--;
         }
 
         System.out.println("You have spent all your abilities points. Your abilities are: ");
-        PrintUtils.printAbilities(hero);
-        System.out.println();
+        PrintUtils.printAbilities(this.hero);
     }
 
     public void removeHeroAvailablePoints() {
@@ -77,8 +78,8 @@ public class HeroAbilityManager {
             System.out.println("5. Luck");
             System.out.println("6. Health");
 
-            final int abilityIndex = InputUtils.readInt();
             Ability ability;
+            final int abilityIndex = InputUtils.readInt();
             switch (abilityIndex) {
                 case 0 -> {
                     return;

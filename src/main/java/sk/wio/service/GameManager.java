@@ -1,5 +1,6 @@
 package sk.wio.service;
 
+import sk.wio.ability.Ability;
 import sk.wio.ability.HeroAbilityManager;
 import sk.wio.constant.Constants;
 import sk.wio.domain.Enemy;
@@ -21,40 +22,50 @@ public class GameManager {
 
     private final Map<Integer, Enemy> enemiesByLevel;
 
-    public GameManager(Map<Integer, Enemy> enemiesByLevel) {
+    public GameManager() {
         this.hero = new Hero("");
-        this.heroAbilityManager = new HeroAbilityManager(hero);
-        this.currentLevel = Constants.INITIAL_LEVEL;
-        this.battleService = new BattleService();
         this.fileService = new FileService();
+        this.battleService = new BattleService();
+        this.heroAbilityManager = new HeroAbilityManager(this.hero);
+        this.currentLevel = Constants.INITIAL_LEVEL;
         this.enemiesByLevel = EnemyGenerator.createEnemies();
     }
 
-    public void startGame() {
+    public void startGame() throws InterruptedException {
         this.initGame();
 
         while (this.currentLevel <= this.enemiesByLevel.size()) {
             final Enemy enemy = this.enemiesByLevel.get(this.currentLevel);
             System.out.println("0. Fight " + enemy.getName() + " (Level " + this.currentLevel + ")");
-            System.out.println("1. Upgrade abilities (" + hero.getAvailablePoints() + " points to spend)");
+            System.out.println("1. Upgrade abilities (" + hero.getAvailablePoints() + " points left)");
             System.out.println("2. Save game");
             System.out.println("3. Exit game");
 
             final int choice = InputUtils.readInt();
             switch (choice) {
                 case 0 -> {
-                    if (this.battleService.isHeroReadyToBattle(this.hero, enemy)) {
-                        // TODO battle
-                        this.currentLevel++;
-                    }
+                    if (battleService.isHeroReadyToBattle(this.hero, enemy)) {
+                        final int heroHealthBeforeBattle = this.hero.getAbilities().get(Ability.HEALTH);
 
-                    // battle
-                    this.currentLevel++;
+                        // battle
+                        final boolean hasHeroWon = battleService.battle(this.hero, enemy);
+                        if (hasHeroWon) {
+                            PrintUtils.printDivider();
+                            System.out.println("You have won this battle! You have gained " + this.currentLevel + " ability points.");
+                            this.hero.updateAvailablePoints(this.currentLevel);
+                            this.currentLevel++;
+                        } else {
+                            System.out.println("You have lost!");
+                        }
+
+                        // restore hero health
+                        this.hero.setAbility(Ability.HEALTH, heroHealthBeforeBattle);
+                        System.out.println("You have full health now");
+                        PrintUtils.printDivider();
+                    }
                 }
                 case 1 -> this.upgradeAbilities();
-                case 2 -> {
-                    this.fileService.saveGame(this.hero, this.currentLevel);
-                }
+                case 2 -> fileService.saveGame(this.hero, this.currentLevel);
                 case 3 -> {
                     System.out.println("Are you sure?");
                     System.out.println("0. N0");
@@ -64,10 +75,10 @@ public class GameManager {
                         System.out.println("Bye!");
                         return;
                     }
-                    System.out.println("Continuing...");
+                    System.out.println("Continuing game...");
                     PrintUtils.printDivider();
                 }
-                default -> System.out.println("Invalid choice");
+                default -> System.out.println("Invalid choice!");
             }
         }
 
@@ -78,9 +89,10 @@ public class GameManager {
         System.out.println("Welcome to the Gladiator game!");
         System.out.println("0. Start new game");
         System.out.println("1. Load game");
+
         final int choice = InputUtils.readInt();
         switch (choice) {
-            case 0 -> System.out.println("Let's go then");
+            case 0 -> System.out.println("Let's go then.");
             case 1 -> {
                 final LoadedGame loadedGame = fileService.loadGame();
                 if (loadedGame != null) {
@@ -89,7 +101,7 @@ public class GameManager {
                     return;
                 }
             }
-            default -> System.out.println("Invalid choice");
+            default -> System.out.println("Invalid choice!");
         }
 
         System.out.println("Enter your name: ");
@@ -97,8 +109,8 @@ public class GameManager {
         this.hero.setName(name);
         System.out.println("Hello " + hero.getName() + "! Let's start the game!");
         PrintUtils.printDivider();
-        System.out.println("Your abilities are: ");
-        PrintUtils.printAbilities(hero);
+        System.out.println("Your abilities are:");
+        PrintUtils.printAbilities(this.hero);
         PrintUtils.printDivider();
         this.heroAbilityManager.spendHeroAvailablePoints();
     }
@@ -117,7 +129,7 @@ public class GameManager {
             }
             case 1 -> this.heroAbilityManager.spendHeroAvailablePoints();
             case 2 -> this.heroAbilityManager.removeHeroAvailablePoints();
-            case 3 -> System.out.println("Invalid choice");
+            default -> System.out.println("Invalid choice!");
         }
     }
 }
